@@ -5,7 +5,7 @@ BG-NBD ve Gamma-Gamma ile CLTV Tahmini / BG-NBD and Gamma-Gamma CLTV Prediction
 FLO müşteri verilerini kullanarak Customer Lifetime Value (CLTV) tahmini
 Customer Lifetime Value (CLTV) prediction using FLO customer data
 
-Autor: Fecet İnn
+Autor: fecetinn
 Tarih / Date: 2025
 """
 
@@ -29,29 +29,34 @@ pd.set_option("display.width", 500)
 
 def check_df_tabulate(dataframe, head=10):
     """
-    Pandas DataFrame'in kapsamlı raporunu formatlanmış tablolarla oluştur
-    Generate a comprehensive report of a pandas DataFrame with formatted tables.
+        Generate a comprehensive report of a pandas DataFrame with formatted tables.
 
-    Bu fonksiyon DataFrame'in detaylı analizini sağlar: temel bilgiler, sütun istatistikleri,
-    sayısal özetler ve örnek veri görüntüleri dahil olmak üzere tabulate ile gelişmiş formatlama
-    This function provides a detailed analysis of a DataFrame including basic information,
-    column statistics, numerical summaries, and sample data displays using tabulate for enhanced formatting.
+        This function provides a detailed analysis of a DataFrame including basic information,
+        column statistics, numerical summaries, and sample data displays using tabulate
+        for enhanced formatting.
 
-    Parameters / Parametreler
-    ----------
-    dataframe : pandas.DataFrame
-        Analiz edilecek ve rapor oluşturulacak DataFrame
-        The DataFrame to analyze and report on.
-    head : int, optional
-        Başlangıç ve bitiş bölümleri için görüntülenecek satır sayısı (varsayılan 10)
-        Number of rows to display for head and tail sections (default is 10).
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            The DataFrame to analyze and report on.
+        head : int, optional
+            Number of rows to display for head and tail sections (default is 10).
 
-    Returns / Dönüş Değeri
-    -------
-    None
-        Bu fonksiyon raporu doğrudan konsola yazdırır ve herhangi bir değer döndürmez
-        This function prints the report directly to console and does not return any value.
-    """
+        Returns
+        -------
+        None
+            This function prints the report directly to console and does not return any value.
+
+        Notes
+        -----
+        The function requires the 'tabulate' library to be installed for proper formatting.
+        The report includes:
+        - Basic DataFrame information (shape, memory usage)
+        - Column details (data types, unique values, missing values)
+        - Statistical summaries for numerical columns
+        - Sample data from beginning and end of DataFrame
+        """
+
     print("#" * 84)
     print("#" * 27, " " * 5, "DATAFRAME REPORT", " " * 5, "#" * 27)
     print("#" * 84)
@@ -122,34 +127,54 @@ def check_df_tabulate(dataframe, head=10):
 
 def grab_col_names(dataframe, cat_th=10, car_th=20):
     """
-    DataFrame sütunlarını kategorik, sayısal, kardinal ve tarih kategorilerine ayır
     Classify DataFrame columns into categorical, numerical, cardinal, and date categories.
 
-    Bu fonksiyon DataFrame sütunlarını veri tiplerine ve benzersiz değer sayılarına göre otomatik kategorize eder
-    This function automatically categorizes DataFrame columns based on their data types and unique value counts
+    This function automatically categorizes DataFrame columns based on their data types
+    and unique value counts. It identifies categorical columns, numerical columns,
+    cardinal (high cardinality categorical) columns, and date/datetime columns using
+    specified thresholds.
 
-    Parameters / Parametreler
+    Parameters
     ----------
     dataframe : pandas.DataFrame
-        Sütunları sınıflandırılacak DataFrame
         The DataFrame whose columns will be classified.
     cat_th : int, optional
-        Sayısal verilerden kategorik sütunları belirlemek için eşik (varsayılan 10)
-        Threshold for determining categorical columns from numerical data (default is 10).
+        Threshold for determining categorical columns from numerical data.
+        Numerical columns with unique values less than this threshold will be
+        treated as categorical (default is 10).
     car_th : int, optional
-        Kategorik verilerden kardinal sütunları belirlemek için eşik (varsayılan 20)
-        Threshold for determining cardinal columns from categorical data (default is 20).
+        Threshold for determining cardinal columns from categorical data.
+        Categorical columns with unique values greater than this threshold will be
+        treated as cardinal (default is 20).
 
-    Returns / Dönüş Değerleri
+    Returns
     -------
     cat_cols : list
-        Kategorik sütun isimleri listesi / List of categorical column names
+        List of column names identified as categorical columns.
+        Includes original categorical columns plus numerical columns with
+        low cardinality (< cat_th).
     num_cols : list
-        Sayısal sütun isimleri listesi / List of numerical column names
+        List of column names identified as numerical columns.
+        Includes numerical columns that are not classified as categorical.
     cat_but_car : list
-        Yüksek kardinaliteli kategorik sütun isimleri listesi / List of high cardinality categorical column names
+        List of column names that are categorical but have high cardinality (> car_th).
+        These are typically categorical columns that should be handled differently
+        due to their high number of unique values.
     date_cols : list
-        Tarih/datetime sütun isimleri listesi / List of date/datetime column names
+        List of column names identified as date/datetime columns.
+        Includes datetime64, datetime, date, and time data types.
+
+    Notes
+    -----
+    The function uses the following logic:
+    1. Identifies date/datetime columns first
+    2. Identifies base categorical columns (category, object, bool types)
+    3. Finds numerical columns that behave like categorical (low unique values)
+    4. Identifies high cardinality categorical columns
+    5. Adjusts classifications to avoid overlaps
+
+    The function prints a summary of the classification results including
+    observation count, variable count, and counts for each column type.
     """
 
     # 1. Önce tarih/datetime sütunlarını tanımla / Identify date/datetime columns first
@@ -240,7 +265,7 @@ def outlier_threshold(dataframe, variable, q1=0.25, q3=0.75, show_plt=False):
         plt.ylabel('Values / Değerler')
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.show()
+        plt.show(block = True)
 
     return round(lower_limit), round(upper_limit)
 
@@ -425,7 +450,7 @@ def main():
     plt.figure(figsize=(12, 8))
     plot_period_transactions(bgf)
     plt.title("BG/NBD Model - Predicted vs Actual Transactions / Tahmin Edilen vs Gerçek İşlemler")
-    plt.show(plot=True)
+    plt.show(block=True)
 
     # Adım 2: Gamma-Gamma modelini fit et / Step 2: Fit Gamma-Gamma model
     print("\nAdım 2: Gamma-Gamma modeli kuruluyor... / Step 2: Building Gamma-Gamma model...")
@@ -467,8 +492,9 @@ def main():
 
     print("\n✅ GÖREV 3 TAMAMLANDI! / TASK 3 COMPLETED!")
 
+    print("=" * 50)
     # GÖREV 4: CLTV DEĞERİNE GÖRE SEGMENTLERİ OLUŞTUR / TASK 4: CREATE SEGMENTS BASED ON CLTV VALUE
-    print("\n4️⃣ GÖREV 4: CLTV SEGMENTASyONU / TASK 4: CLTV SEGMENTATION")
+    print("\n\n\n4️⃣ GÖREV 4: CLTV SEGMENTASyONU / TASK 4: CLTV SEGMENTATION")
     print("-" * 50)
 
     # Adım 1: Segmentlere ayır / Step 1: Divide into segments
@@ -526,7 +552,7 @@ def main():
     plt.title('Segment Dağılımı (%) / Segment Distribution (%)')
 
     plt.tight_layout()
-    plt.show(plot=True)
+    plt.show(block=True)
 
     # Adım 2: İş önerileri / Step 2: Business recommendations
     print("\n💼 ADIM 2: İŞ ÖNERİLERİ / STEP 2: BUSINESS RECOMMENDATIONS")
